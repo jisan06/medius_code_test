@@ -16,8 +16,36 @@ class ProductController extends Controller
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response|\Illuminate\View\View
      */
     public function index()
-    {
-        return view('products.index');
+    {   
+        if(request('search_key')){
+            $search_param = request()->all();
+            
+            $data['products'] = Product::whereHas('productVariants', function($q) use ($search_param) {
+                if(!empty($search_param['variant'])){
+                    $q->where('variant',$search_param['variant']);
+                }
+                
+            })
+            ->whereHas('productVariantPrices', function($q) use ($search_param) {
+                if(!empty($search_param['price_from']) && !empty($search_param['price_to'])) {
+                    $q->whereBetween('price', [$search_param['price_from'], $search_param['price_to']]);
+                }
+            })
+            ->where(function($query) use($search_param){
+                if(!empty($search_param['title'])){
+                    $query->where('title','LIKE','%'.$search_param['title'].'%');
+                }
+                if(!empty($search_param['date'])){
+                    $query ->whereDate('created_at','=',\Carbon\Carbon::parse($search_param['date'])->format('Y-m-d'));
+                }
+
+            })
+            ->paginate(4);
+        }else{
+            $data['products'] = Product::paginate(4);
+        }
+        $data['varinats'] = Variant::all();
+        return view('products.index',$data);
     }
 
     /**
@@ -62,8 +90,10 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        $variants = Variant::all();
-        return view('products.edit', compact('variants'));
+        $data['variants'] = Variant::all();
+        $data['product'] = $product;
+
+        return view('products.edit', $data);
     }
 
     /**

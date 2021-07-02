@@ -11,11 +11,26 @@
         <form action="" method="get" class="card-header">
             <div class="form-row justify-content-between">
                 <div class="col-md-2">
-                    <input type="text" name="title" placeholder="Product Title" class="form-control">
+                    <input type="hidden" name="search_key" value="1" class="form-control">
+                    <input type="text" value="{{@request('title')}}" name="title" placeholder="Product Title" class="form-control">
                 </div>
                 <div class="col-md-2">
                     <select name="variant" id="" class="form-control">
-
+                        @foreach($varinats as $variant)
+                        <option value="">Select Variant</option>
+                            <optgroup label="{{$variant->title}}">
+                                @foreach($variant->productVariants as $productVariant)
+                                @php
+                                    if($productVariant->variant == @request('variant')){
+                                        $selected = 'selected';
+                                    }else{
+                                        $selected = '';
+                                    }
+                                @endphp
+                                    <option value="{{$productVariant->variant}}" {{$selected}}>{{$productVariant->variant}}</option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
                     </select>
                 </div>
 
@@ -24,12 +39,12 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">Price Range</span>
                         </div>
-                        <input type="text" name="price_from" aria-label="First name" placeholder="From" class="form-control">
-                        <input type="text" name="price_to" aria-label="Last name" placeholder="To" class="form-control">
+                        <input type="text" value="{{@request('price_from')}}" name="price_from" aria-label="First name" placeholder="From" class="form-control">
+                        <input type="text" value="{{@request('price_to')}}" name="price_to" aria-label="Last name" placeholder="To" class="form-control">
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <input type="date" name="date" placeholder="Date" class="form-control">
+                    <input type="date" value="{{@request('date')}}" name="date" placeholder="Date" class="form-control">
                 </div>
                 <div class="col-md-1">
                     <button type="submit" class="btn btn-primary float-right"><i class="fa fa-search"></i></button>
@@ -44,39 +59,43 @@
                     <tr>
                         <th>#</th>
                         <th>Title</th>
-                        <th>Description</th>
+                        <th width="250px">Description</th>
                         <th>Variant</th>
                         <th width="150px">Action</th>
                     </tr>
                     </thead>
 
                     <tbody>
-
+                    @foreach($products as $key=>$product)
                     <tr>
-                        <td>1</td>
-                        <td>T-Shirt <br> Created at : 25-Aug-2020</td>
-                        <td>Quality product in low cost</td>
+                        <td>{{$key+1}}</td>
+                        <td>{{$product->title}} <br> Created at : {{$product->created_at->diffForHumans() }}</td>
+                        <td>{{Str::limit($product->description,150)}}</td>
                         <td>
-                            <dl class="row mb-0" style="height: 80px; overflow: hidden" id="variant">
-
-                                <dt class="col-sm-3 pb-0">
-                                    SM/ Red/ V-Nick
+                            
+                            <dl class="row mb-0" style="height: 80px; overflow: hidden" id="variant_{{$key}}">
+                                @foreach($product->productVariantPrices as $productVariantPrice)
+                                <dt class="col-sm-3 pb-0"> 
+                                    {{@$productVariantPrice->productVariantOne->variant}}/ {{@$productVariantPrice->productVariantTwo->variant}}/ {{@$productVariantPrice->productVariantThree->variant}}
                                 </dt>
                                 <dd class="col-sm-9">
                                     <dl class="row mb-0">
-                                        <dt class="col-sm-4 pb-0">Price : {{ number_format(200,2) }}</dt>
-                                        <dd class="col-sm-8 pb-0">InStock : {{ number_format(50,2) }}</dd>
+                                        <dt class="col-sm-4 pb-0">Price : {{ number_format($productVariantPrice->price,2) }}</dt>
+                                        <dd class="col-sm-8 pb-0">InStock : {{ number_format($productVariantPrice->stock,2) }}</dd>
                                     </dl>
                                 </dd>
+                                @endforeach
                             </dl>
-                            <button onclick="$('#variant').toggleClass('h-auto')" class="btn btn-sm btn-link">Show more</button>
+                            
+                            <button onclick="$('#variant_{{$key}}').toggleClass('h-auto')" class="btn btn-sm btn-link">Show more</button>
                         </td>
                         <td>
                             <div class="btn-group btn-group-sm">
-                                <a href="{{ route('product.edit', 1) }}" class="btn btn-success">Edit</a>
+                                <a href="{{ route('product.edit', $product->id) }}" class="btn btn-success">Edit</a>
                             </div>
                         </td>
                     </tr>
+                    @endforeach
 
                     </tbody>
 
@@ -88,10 +107,11 @@
         <div class="card-footer">
             <div class="row justify-content-between">
                 <div class="col-md-6">
-                    <p>Showing 1 to 10 out of 100</p>
+                    <p>Showing {{($products->currentpage()-1)*$products->perpage()+1}} to {{$products->currentpage()*$products->perpage()}}
+                        out of  {{$products->total()}}</p>
                 </div>
-                <div class="col-md-2">
-
+                <div class="col-md-6">
+                    <div class="float-right">{{$products->links()}}</div> 
                 </div>
             </div>
         </div>
