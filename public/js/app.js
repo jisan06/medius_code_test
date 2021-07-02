@@ -2109,7 +2109,7 @@ __webpack_require__.r(__webpack_exports__);
         product_variant_prices: this.product_variant_prices
       };
       axios.post('/product', product).then(function (response) {
-        console.log(response.data);
+        window.location.href = "/product";
       })["catch"](function (error) {
         console.log(error);
       });
@@ -50945,48 +50945,45 @@ var render = function() {
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-md-8" }, [
-                  _c("div", { staticClass: "form-group" }, [
-                    _vm.product_variant.length != 1
-                      ? _c(
-                          "label",
-                          {
-                            staticClass: "float-right text-primary",
-                            staticStyle: { cursor: "pointer" },
-                            on: {
-                              click: function($event) {
-                                _vm.product_variant.splice(index, 1)
-                                _vm.checkVariant
+                  _c(
+                    "div",
+                    { staticClass: "form-group" },
+                    [
+                      _vm.product_variant.length != 1
+                        ? _c(
+                            "label",
+                            {
+                              staticClass: "float-right text-primary",
+                              staticStyle: { cursor: "pointer" },
+                              on: {
+                                click: function($event) {
+                                  _vm.product_variant.splice(index, 1)
+                                  _vm.checkVariant
+                                }
                               }
-                            }
-                          },
-                          [_vm._v("Remove")]
-                        )
-                      : _c("label", { attrs: { for: "" } }, [_vm._v(".")]),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
+                            },
+                            [_vm._v("Remove")]
+                          )
+                        : _c("label", { attrs: { for: "" } }, [_vm._v(".")]),
+                      _vm._v(" "),
+                      _c("input-tag", {
+                        staticClass: "form-control",
+                        on: {
+                          input: function($event) {
+                            return _vm.checkVariant(item.option)
+                          }
+                        },
+                        model: {
                           value: item.tags,
+                          callback: function($$v) {
+                            _vm.$set(item, "tags", $$v)
+                          },
                           expression: "item.tags"
                         }
-                      ],
-                      staticClass: "form-control",
-                      domProps: { value: item.tags },
-                      on: {
-                        input: [
-                          function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.$set(item, "tags", $event.target.value)
-                          },
-                          _vm.checkVariant
-                        ]
-                      }
-                    })
-                  ])
+                      })
+                    ],
+                    1
+                  )
                 ])
               ])
             }),
