@@ -71,16 +71,21 @@
                                     <td>Variant</td>
                                     <td>Price</td>
                                     <td>Stock</td>
+                                    <td>Action</td>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="variant_price in product_variant_prices">
+                                <tr v-for="(variant_price,index) in product_variant_prices">
                                     <td>{{ variant_price.title }}</td>
                                     <td>
                                         <input type="text" class="form-control" v-model="variant_price.price">
                                     </td>
                                     <td>
                                         <input type="text" class="form-control" v-model="variant_price.stock">
+                                    </td>
+
+                                    <td>
+                                        <a href="javascript:" @click="product_variant_prices.splice(index,1)" class="btn btn-danger">Remove</a>
                                     </td>
                                 </tr>
                                 </tbody>

@@ -2242,6 +2242,11 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 
@@ -51355,7 +51360,10 @@ var render = function() {
                 _vm._v(" "),
                 _c(
                   "tbody",
-                  _vm._l(_vm.product_variant_prices, function(variant_price) {
+                  _vm._l(_vm.product_variant_prices, function(
+                    variant_price,
+                    index
+                  ) {
                     return _c("tr", [
                       _c("td", [_vm._v(_vm._s(variant_price.title))]),
                       _vm._v(" "),
@@ -51413,6 +51421,25 @@ var render = function() {
                             }
                           }
                         })
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "btn btn-danger",
+                            attrs: { href: "javascript:" },
+                            on: {
+                              click: function($event) {
+                                return _vm.product_variant_prices.splice(
+                                  index,
+                                  1
+                                )
+                              }
+                            }
+                          },
+                          [_vm._v("Remove")]
+                        )
                       ])
                     ])
                   }),
@@ -51487,7 +51514,9 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("td", [_vm._v("Price")]),
         _vm._v(" "),
-        _c("td", [_vm._v("Stock")])
+        _c("td", [_vm._v("Stock")]),
+        _vm._v(" "),
+        _c("td", [_vm._v("Action")])
       ])
     ])
   }
