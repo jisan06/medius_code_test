@@ -53,7 +53,7 @@
                                            class="float-right text-primary"
                                            style="cursor: pointer;">Remove</label>
                                     <label v-else for="">.</label>
-                                    <input v-model="item.tags" @input="checkVariant" class="form-control"></input>
+                                    <input-tag v-model="item.tags" @input="checkVariant(item.option)" class="form-control"></input-tag>
                                 </div>
                             </div>
                         </div>
@@ -86,6 +86,19 @@
 
                                     <td>
                                         <a href="javascript:" @click="product_variant_prices.splice(index,1)" class="btn btn-danger">Remove</a>
+                                    </td>
+                                </tr>
+                                <tr v-for="(variant_price,index) in temp_product_variant_prices">
+                                    <td>{{ variant_price.title }}</td>
+                                    <td>
+                                        <input type="text" class="form-control" v-model="variant_price.price">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" v-model="variant_price.stock">
+                                    </td>
+
+                                    <td>
+                                        <a href="javascript:" @click="temp_product_variant_prices.splice(index,1)" class="btn btn-danger">Remove</a>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -133,6 +146,7 @@ export default {
                 }
             ],
             product_variant_prices: [],
+            temp_product_variant_prices: [],
             dropzoneOptions: {
                 url: '/product/image_upload/'+this.product.id,
                 thumbnailWidth: 150,
@@ -156,19 +170,23 @@ export default {
         },
 
         // check the variant and render all the combination
-        checkVariant() {
+        checkVariant(variant_id) {
             let tags = [];
+            this.temp_product_variant_prices = [];
             this.product_variant.filter((item) => {
                 tags.push(item.tags);
             })
 
             this.getCombn(tags).forEach(item => {
-                this.product_variant_prices.push({
+                this.temp_product_variant_prices.push({
+                    variants: {'variant':variant_id},
                     title: item,
                     price: 0,
                     stock: 0
                 })
             })
+
+            console.log(this.temp_product_variant_prices);
         },
 
         // combination algorithm
@@ -186,6 +204,16 @@ export default {
 
         // store product into database
         saveProduct() {
+            for(let temp_product_variant_price of this.temp_product_variant_prices){
+                this.product_variant_prices.push({
+                    variant_id: temp_product_variant_price.variant_id,
+                    title: temp_product_variant_price.title,
+                    price: temp_product_variant_price.price,
+                    stock: temp_product_variant_price.stock
+                })
+            }
+
+            this.temp_product_variant_prices = [];
             let product = {
                 title: this.product_name,
                 sku: this.product_sku,

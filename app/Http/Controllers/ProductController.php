@@ -111,15 +111,40 @@ class ProductController extends Controller
         if($product){
             $product_variant_prices = count($request->product_variant_prices);
             ProductVariantPrice::where('product_id', $product->id)->delete();
+            ProductVariant::where('product_id', $product->id)->delete();
+
             if($product_variant_prices > 0){
                 for ($i=0; $i <$product_variant_prices ; $i++) { 
-                    $product_variant = ProductVariantPrice::create( [
+                    $data = explode('/', $request->product_variant_prices[$i]['title']);
+
+                    foreach ($data as $key => $value) {
+
+                        $all_variant = Variant::all();
+                        if($value){
+                            $product_variant = ProductVariant::create( [
+                                'variant' => $value,
+                                'variant_id' => $all_variant[$key]['id'],
+                                'product_id' => $product->id,
+                            ]); 
+                        }
+
+                        if($key == 0 && @$value){
+                            $product_variant_one = $product_variant->id;
+                        }elseif($key == 1 && @$value){
+                            $product_variant_two = $product_variant->id;
+                        }elseif($key == 2 && @$value){
+                            $product_variant_three = $product_variant->id;
+                        }
+                    }
+
+
+                    $product_variant_price = ProductVariantPrice::create( [
                         'product_id' => $product->id,            
                         'price' => $request->product_variant_prices[$i]['price'],         
                         'stock' => $request->product_variant_prices[$i]['stock'],         
-                        'product_variant_one' => $request->product_variant_prices[$i]['product_variant_one'],         
-                        'product_variant_two' => $request->product_variant_prices[$i]['product_variant_two'],         
-                        'product_variant_three' => $request->product_variant_prices[$i]['product_variant_three'],         
+                        'product_variant_one' => $product_variant_one,         
+                        'product_variant_two' => $product_variant_two,         
+                        'product_variant_three' => @$product_variant_three,         
                     ]);
                 }
             }
@@ -139,7 +164,7 @@ class ProductController extends Controller
 
     public function imageUpload(Request $reuest,$id){
         $file = $reuest->file;
-     $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).'_'.rand(1000000,9999999);
+        $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).'_'.rand(1000000,9999999);
         $extension = $file->getClientOriginalExtension();
         $name = $filename.'.'.$extension;
         \Storage::disk('local')->put('/images'.'/'.$name,$file->get());

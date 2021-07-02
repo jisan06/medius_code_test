@@ -2247,6 +2247,19 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -2273,6 +2286,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         tags: []
       }],
       product_variant_prices: [],
+      temp_product_variant_prices: [],
       dropzoneOptions: {
         url: '/product/image_upload/' + this.product.id,
         thumbnailWidth: 150,
@@ -2304,20 +2318,25 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       });
     },
     // check the variant and render all the combination
-    checkVariant: function checkVariant() {
+    checkVariant: function checkVariant(variant_id) {
       var _this = this;
 
       var tags = [];
+      this.temp_product_variant_prices = [];
       this.product_variant.filter(function (item) {
         tags.push(item.tags);
       });
       this.getCombn(tags).forEach(function (item) {
-        _this.product_variant_prices.push({
+        _this.temp_product_variant_prices.push({
+          variants: {
+            'variant': variant_id
+          },
           title: item,
           price: 0,
           stock: 0
         });
       });
+      console.log(this.temp_product_variant_prices);
     },
     // combination algorithm
     getCombn: function getCombn(arr, pre) {
@@ -2335,6 +2354,26 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     },
     // store product into database
     saveProduct: function saveProduct() {
+      var _iterator = _createForOfIteratorHelper(this.temp_product_variant_prices),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var temp_product_variant_price = _step.value;
+          this.product_variant_prices.push({
+            variant_id: temp_product_variant_price.variant_id,
+            title: temp_product_variant_price.title,
+            price: temp_product_variant_price.price,
+            stock: temp_product_variant_price.stock
+          });
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+
+      this.temp_product_variant_prices = [];
       var product = {
         title: this.product_name,
         sku: this.product_sku,
@@ -2358,12 +2397,12 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     this.product_sku = product.sku;
     this.description = product.description;
 
-    var _iterator = _createForOfIteratorHelper(product.product_variant_prices),
-        _step;
+    var _iterator2 = _createForOfIteratorHelper(product.product_variant_prices),
+        _step2;
 
     try {
-      for (_iterator.s(); !(_step = _iterator.n()).done;) {
-        var productVariantPrice = _step.value;
+      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+        var productVariantPrice = _step2.value;
         var variant_one_id = productVariantPrice.product_variant_one ? productVariantPrice.product_variant_one.id : '';
         var variant_two_id = productVariantPrice.product_variant_two ? productVariantPrice.product_variant_two.id : '';
         var variant_three_id = productVariantPrice.product_variant_three ? productVariantPrice.product_variant_three.id : '';
@@ -2380,9 +2419,9 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         });
       }
     } catch (err) {
-      _iterator.e(err);
+      _iterator2.e(err);
     } finally {
-      _iterator.f();
+      _iterator2.f();
     }
 
     this.images = product.product_images;
@@ -51303,48 +51342,45 @@ var render = function() {
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-md-8" }, [
-                  _c("div", { staticClass: "form-group" }, [
-                    _vm.product_variant.length != 1
-                      ? _c(
-                          "label",
-                          {
-                            staticClass: "float-right text-primary",
-                            staticStyle: { cursor: "pointer" },
-                            on: {
-                              click: function($event) {
-                                _vm.product_variant.splice(index, 1)
-                                _vm.checkVariant
+                  _c(
+                    "div",
+                    { staticClass: "form-group" },
+                    [
+                      _vm.product_variant.length != 1
+                        ? _c(
+                            "label",
+                            {
+                              staticClass: "float-right text-primary",
+                              staticStyle: { cursor: "pointer" },
+                              on: {
+                                click: function($event) {
+                                  _vm.product_variant.splice(index, 1)
+                                  _vm.checkVariant
+                                }
                               }
-                            }
-                          },
-                          [_vm._v("Remove")]
-                        )
-                      : _c("label", { attrs: { for: "" } }, [_vm._v(".")]),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
+                            },
+                            [_vm._v("Remove")]
+                          )
+                        : _c("label", { attrs: { for: "" } }, [_vm._v(".")]),
+                      _vm._v(" "),
+                      _c("input-tag", {
+                        staticClass: "form-control",
+                        on: {
+                          input: function($event) {
+                            return _vm.checkVariant(item.option)
+                          }
+                        },
+                        model: {
                           value: item.tags,
+                          callback: function($$v) {
+                            _vm.$set(item, "tags", $$v)
+                          },
                           expression: "item.tags"
                         }
-                      ],
-                      staticClass: "form-control",
-                      domProps: { value: item.tags },
-                      on: {
-                        input: [
-                          function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.$set(item, "tags", $event.target.value)
-                          },
-                          _vm.checkVariant
-                        ]
-                      }
-                    })
-                  ])
+                      })
+                    ],
+                    1
+                  )
                 ])
               ])
             }),
@@ -51376,90 +51412,176 @@ var render = function() {
                 _vm._v(" "),
                 _c(
                   "tbody",
-                  _vm._l(_vm.product_variant_prices, function(
-                    variant_price,
-                    index
-                  ) {
-                    return _c("tr", [
-                      _c("td", [_vm._v(_vm._s(variant_price.title))]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _c("input", {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: variant_price.price,
-                              expression: "variant_price.price"
-                            }
-                          ],
-                          staticClass: "form-control",
-                          attrs: { type: "text" },
-                          domProps: { value: variant_price.price },
-                          on: {
-                            input: function($event) {
-                              if ($event.target.composing) {
-                                return
+                  [
+                    _vm._l(_vm.product_variant_prices, function(
+                      variant_price,
+                      index
+                    ) {
+                      return _c("tr", [
+                        _c("td", [_vm._v(_vm._s(variant_price.title))]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: variant_price.price,
+                                expression: "variant_price.price"
                               }
-                              _vm.$set(
-                                variant_price,
-                                "price",
-                                $event.target.value
-                              )
-                            }
-                          }
-                        })
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _c("input", {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: variant_price.stock,
-                              expression: "variant_price.stock"
-                            }
-                          ],
-                          staticClass: "form-control",
-                          attrs: { type: "text" },
-                          domProps: { value: variant_price.stock },
-                          on: {
-                            input: function($event) {
-                              if ($event.target.composing) {
-                                return
-                              }
-                              _vm.$set(
-                                variant_price,
-                                "stock",
-                                $event.target.value
-                              )
-                            }
-                          }
-                        })
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "btn btn-danger",
-                            attrs: { href: "javascript:" },
+                            ],
+                            staticClass: "form-control",
+                            attrs: { type: "text" },
+                            domProps: { value: variant_price.price },
                             on: {
-                              click: function($event) {
-                                return _vm.product_variant_prices.splice(
-                                  index,
-                                  1
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.$set(
+                                  variant_price,
+                                  "price",
+                                  $event.target.value
                                 )
                               }
                             }
-                          },
-                          [_vm._v("Remove")]
-                        )
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: variant_price.stock,
+                                expression: "variant_price.stock"
+                              }
+                            ],
+                            staticClass: "form-control",
+                            attrs: { type: "text" },
+                            domProps: { value: variant_price.stock },
+                            on: {
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.$set(
+                                  variant_price,
+                                  "stock",
+                                  $event.target.value
+                                )
+                              }
+                            }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c(
+                            "a",
+                            {
+                              staticClass: "btn btn-danger",
+                              attrs: { href: "javascript:" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.product_variant_prices.splice(
+                                    index,
+                                    1
+                                  )
+                                }
+                              }
+                            },
+                            [_vm._v("Remove")]
+                          )
+                        ])
                       ])
-                    ])
-                  }),
-                  0
+                    }),
+                    _vm._v(" "),
+                    _vm._l(_vm.temp_product_variant_prices, function(
+                      variant_price,
+                      index
+                    ) {
+                      return _c("tr", [
+                        _c("td", [_vm._v(_vm._s(variant_price.title))]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: variant_price.price,
+                                expression: "variant_price.price"
+                              }
+                            ],
+                            staticClass: "form-control",
+                            attrs: { type: "text" },
+                            domProps: { value: variant_price.price },
+                            on: {
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.$set(
+                                  variant_price,
+                                  "price",
+                                  $event.target.value
+                                )
+                              }
+                            }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: variant_price.stock,
+                                expression: "variant_price.stock"
+                              }
+                            ],
+                            staticClass: "form-control",
+                            attrs: { type: "text" },
+                            domProps: { value: variant_price.stock },
+                            on: {
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.$set(
+                                  variant_price,
+                                  "stock",
+                                  $event.target.value
+                                )
+                              }
+                            }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c(
+                            "a",
+                            {
+                              staticClass: "btn btn-danger",
+                              attrs: { href: "javascript:" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.temp_product_variant_prices.splice(
+                                    index,
+                                    1
+                                  )
+                                }
+                              }
+                            },
+                            [_vm._v("Remove")]
+                          )
+                        ])
+                      ])
+                    })
+                  ],
+                  2
                 )
               ])
             ])
