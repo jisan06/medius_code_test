@@ -2274,11 +2274,11 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       }],
       product_variant_prices: [],
       dropzoneOptions: {
-        url: 'https://httpbin.org/post',
+        url: '/product/image_upload/' + this.product.id,
         thumbnailWidth: 150,
         maxFilesize: 0.5,
         headers: {
-          "My-Awesome-Header": "header value"
+          'X-CSRF-TOKEN': document.head.querySelector('meta[name="csrf-token"]').content
         }
       }
     };
@@ -2308,11 +2308,9 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       var _this = this;
 
       var tags = [];
-      this.product_variant_prices = [];
       this.product_variant.filter(function (item) {
         tags.push(item.tags);
       });
-      console.log(tags);
       this.getCombn(tags).forEach(function (item) {
         _this.product_variant_prices.push({
           title: item,
@@ -2347,6 +2345,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       };
       axios.put('/product/' + this.product.id, product).then(function (response) {
         console.log(response.data);
+        window.location.href = "/product";
       })["catch"](function (error) {
         console.log(error);
       });
@@ -2385,6 +2384,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     } finally {
       _iterator.f();
     }
+
+    this.images = product.product_images;
   }
 });
 
@@ -50905,41 +50906,48 @@ var render = function() {
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-md-8" }, [
-                  _c(
-                    "div",
-                    { staticClass: "form-group" },
-                    [
-                      _vm.product_variant.length != 1
-                        ? _c(
-                            "label",
-                            {
-                              staticClass: "float-right text-primary",
-                              staticStyle: { cursor: "pointer" },
-                              on: {
-                                click: function($event) {
-                                  _vm.product_variant.splice(index, 1)
-                                  _vm.checkVariant
-                                }
+                  _c("div", { staticClass: "form-group" }, [
+                    _vm.product_variant.length != 1
+                      ? _c(
+                          "label",
+                          {
+                            staticClass: "float-right text-primary",
+                            staticStyle: { cursor: "pointer" },
+                            on: {
+                              click: function($event) {
+                                _vm.product_variant.splice(index, 1)
+                                _vm.checkVariant
                               }
-                            },
-                            [_vm._v("Remove")]
-                          )
-                        : _c("label", { attrs: { for: "" } }, [_vm._v(".")]),
-                      _vm._v(" "),
-                      _c("input-tag", {
-                        staticClass: "form-control",
-                        on: { input: _vm.checkVariant },
-                        model: {
-                          value: item.tags,
-                          callback: function($$v) {
-                            _vm.$set(item, "tags", $$v)
+                            }
                           },
+                          [_vm._v("Remove")]
+                        )
+                      : _c("label", { attrs: { for: "" } }, [_vm._v(".")]),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: item.tags,
                           expression: "item.tags"
                         }
-                      })
-                    ],
-                    1
-                  )
+                      ],
+                      staticClass: "form-control",
+                      domProps: { value: item.tags },
+                      on: {
+                        input: [
+                          function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(item, "tags", $event.target.value)
+                          },
+                          _vm.checkVariant
+                        ]
+                      }
+                    })
+                  ])
                 ])
               ])
             }),

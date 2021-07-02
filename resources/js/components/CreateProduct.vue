@@ -53,7 +53,7 @@
                                            class="float-right text-primary"
                                            style="cursor: pointer;">Remove</label>
                                     <label v-else for="">.</label>
-                                    <input-tag v-model="item.tags" @input="checkVariant" class="form-control"></input-tag>
+                                    <input v-model="item.tags" @input="checkVariant" class="form-control"></input>
                                 </div>
                             </div>
                         </div>

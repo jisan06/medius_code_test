@@ -7,6 +7,7 @@ use App\Models\ProductVariant;
 use App\Models\ProductVariantPrice;
 use App\Models\Variant;
 use Illuminate\Http\Request;
+use App\Models\ProductImage;
 
 class ProductController extends Controller
 {
@@ -91,7 +92,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $data['variants'] = Variant::all();
-        $data['product'] =  Product::with('productVariantPrices','productVariantPrices.productVariantOne','productVariantPrices.productVariantTwo','productVariantPrices.productVariantThree')->find($product->id);
+        $data['product'] =  Product::with('productVariantPrices','productImages','productVariantPrices.productVariantOne','productVariantPrices.productVariantTwo','productVariantPrices.productVariantThree')->find($product->id);
 
         return view('products.edit', $data);
     }
@@ -133,6 +134,23 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        
+    }
+
+    public function imageUpload(Request $reuest,$id){
+        $file = $reuest->file;
+     $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).'_'.rand(1000000,9999999);
+        $extension = $file->getClientOriginalExtension();
+        $name = $filename.'.'.$extension;
+        \Storage::disk('local')->put('/images'.'/'.$name,$file->get());
+        $path = 'images'.'/'.$name;
+
+        $product_image = new ProductImage();
+        $product_image->product_id = $id;
+        $product_image->file_path = $path;
+        $product_image->save();
+
     }
 }
+
+

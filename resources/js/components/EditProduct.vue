@@ -134,10 +134,10 @@ export default {
             ],
             product_variant_prices: [],
             dropzoneOptions: {
-                url: 'https://httpbin.org/post',
+                url: '/product/image_upload/'+this.product.id,
                 thumbnailWidth: 150,
                 maxFilesize: 0.5,
-                headers: {"My-Awesome-Header": "header value"}
+                headers: { 'X-CSRF-TOKEN': document.head.querySelector('meta[name="csrf-token"]').content }
             }
         }
     },
@@ -158,11 +158,9 @@ export default {
         // check the variant and render all the combination
         checkVariant() {
             let tags = [];
-            this.product_variant_prices = [];
             this.product_variant.filter((item) => {
                 tags.push(item.tags);
             })
-            console.log(tags)
 
             this.getCombn(tags).forEach(item => {
                 this.product_variant_prices.push({
@@ -199,6 +197,7 @@ export default {
 
             axios.put('/product/'+this.product.id, product).then(response => {
                 console.log(response.data);
+                window.location.href= "/product";
             }).catch(error => {
                 console.log(error);
             })
@@ -233,6 +232,8 @@ export default {
                     stock: productVariantPrice.stock
                 })
         }
+
+        this.images = product.product_images;
 
     }
 }

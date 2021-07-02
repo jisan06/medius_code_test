@@ -18,5 +18,9 @@ class Product extends Model
         return $this->hasMany('App\Models\ProductVariant','product_id', 'id')->groupBy('variant');
     }
 
+    public function productImages(){
+        return $this->hasMany('App\Models\ProductImage','product_id', 'id');
+    }
+
 
 }
