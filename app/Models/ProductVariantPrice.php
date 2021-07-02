@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductVariantPrice extends Model
 {   
+	 protected $guarded = ['id'];
     
     public function productVariantOne(){
         return $this->belongsTo('App\Models\ProductVariant', 'product_variant_one');

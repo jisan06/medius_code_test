@@ -91,7 +91,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $data['variants'] = Variant::all();
-        $data['product'] = $product;
+        $data['product'] =  Product::with('productVariantPrices','productVariantPrices.productVariantOne','productVariantPrices.productVariantTwo','productVariantPrices.productVariantThree')->find($product->id);
 
         return view('products.edit', $data);
     }
@@ -105,7 +105,24 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $product->update($request->all());
+
+        if($product){
+            $product_variant_prices = count($request->product_variant_prices);
+            ProductVariantPrice::where('product_id', $product->id)->delete();
+            if($product_variant_prices > 0){
+                for ($i=0; $i <$product_variant_prices ; $i++) { 
+                    $product_variant = ProductVariantPrice::create( [
+                        'product_id' => $product->id,            
+                        'price' => $request->product_variant_prices[$i]['price'],         
+                        'stock' => $request->product_variant_prices[$i]['stock'],         
+                        'product_variant_one' => $request->product_variant_prices[$i]['product_variant_one'],         
+                        'product_variant_two' => $request->product_variant_prices[$i]['product_variant_two'],         
+                        'product_variant_three' => $request->product_variant_prices[$i]['product_variant_three'],         
+                    ]);
+                }
+            }
+        }
     }
 
     /**
