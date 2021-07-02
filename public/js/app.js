@@ -2312,6 +2312,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       this.product_variant.filter(function (item) {
         tags.push(item.tags);
       });
+      console.log(tags);
       this.getCombn(tags).forEach(function (item) {
         _this.product_variant_prices.push({
           title: item,
@@ -2364,9 +2365,9 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     try {
       for (_iterator.s(); !(_step = _iterator.n()).done;) {
         var productVariantPrice = _step.value;
-        var variant_one_id = productVariantPrice.product_variant_one ? productVariantPrice.product_variant_one.variant_id : '';
-        var variant_two_id = productVariantPrice.product_variant_two ? productVariantPrice.product_variant_two.variant_id : '';
-        var variant_three_id = productVariantPrice.product_variant_three ? productVariantPrice.product_variant_three.variant_id : '';
+        var variant_one_id = productVariantPrice.product_variant_one ? productVariantPrice.product_variant_one.id : '';
+        var variant_two_id = productVariantPrice.product_variant_two ? productVariantPrice.product_variant_two.id : '';
+        var variant_three_id = productVariantPrice.product_variant_three ? productVariantPrice.product_variant_three.id : '';
         var title1 = productVariantPrice.product_variant_one ? productVariantPrice.product_variant_one.variant : '';
         var title2 = productVariantPrice.product_variant_two ? "/" + productVariantPrice.product_variant_two.variant : '';
         var title3 = productVariantPrice.product_variant_three ? "/" + productVariantPrice.product_variant_three.variant : '';
@@ -51294,41 +51295,48 @@ var render = function() {
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-md-8" }, [
-                  _c(
-                    "div",
-                    { staticClass: "form-group" },
-                    [
-                      _vm.product_variant.length != 1
-                        ? _c(
-                            "label",
-                            {
-                              staticClass: "float-right text-primary",
-                              staticStyle: { cursor: "pointer" },
-                              on: {
-                                click: function($event) {
-                                  _vm.product_variant.splice(index, 1)
-                                  _vm.checkVariant
-                                }
+                  _c("div", { staticClass: "form-group" }, [
+                    _vm.product_variant.length != 1
+                      ? _c(
+                          "label",
+                          {
+                            staticClass: "float-right text-primary",
+                            staticStyle: { cursor: "pointer" },
+                            on: {
+                              click: function($event) {
+                                _vm.product_variant.splice(index, 1)
+                                _vm.checkVariant
                               }
-                            },
-                            [_vm._v("Remove")]
-                          )
-                        : _c("label", { attrs: { for: "" } }, [_vm._v(".")]),
-                      _vm._v(" "),
-                      _c("input-tag", {
-                        staticClass: "form-control",
-                        on: { input: _vm.checkVariant },
-                        model: {
-                          value: item.tags,
-                          callback: function($$v) {
-                            _vm.$set(item, "tags", $$v)
+                            }
                           },
+                          [_vm._v("Remove")]
+                        )
+                      : _c("label", { attrs: { for: "" } }, [_vm._v(".")]),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: item.tags,
                           expression: "item.tags"
                         }
-                      })
-                    ],
-                    1
-                  )
+                      ],
+                      staticClass: "form-control",
+                      domProps: { value: item.tags },
+                      on: {
+                        input: [
+                          function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(item, "tags", $event.target.value)
+                          },
+                          _vm.checkVariant
+                        ]
+                      }
+                    })
+                  ])
                 ])
               ])
             }),

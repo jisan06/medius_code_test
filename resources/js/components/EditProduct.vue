@@ -53,7 +53,7 @@
                                            class="float-right text-primary"
                                            style="cursor: pointer;">Remove</label>
                                     <label v-else for="">.</label>
-                                    <input-tag v-model="item.tags" @input="checkVariant" class="form-control"></input-tag>
+                                    <input v-model="item.tags" @input="checkVariant" class="form-control"></input>
                                 </div>
                             </div>
                         </div>
@@ -162,6 +162,7 @@ export default {
             this.product_variant.filter((item) => {
                 tags.push(item.tags);
             })
+            console.log(tags)
 
             this.getCombn(tags).forEach(item => {
                 this.product_variant_prices.push({
@@ -214,9 +215,9 @@ export default {
         this.description = product.description
         for(let productVariantPrice of product.product_variant_prices){
 
-            let variant_one_id = productVariantPrice.product_variant_one  ? productVariantPrice.product_variant_one.variant_id: '';
-            let variant_two_id = productVariantPrice.product_variant_two  ? productVariantPrice.product_variant_two.variant_id: '';
-            let variant_three_id = productVariantPrice.product_variant_three  ? productVariantPrice.product_variant_three.variant_id: '';
+            let variant_one_id = productVariantPrice.product_variant_one  ? productVariantPrice.product_variant_one.id: '';
+            let variant_two_id = productVariantPrice.product_variant_two  ? productVariantPrice.product_variant_two.id: '';
+            let variant_three_id = productVariantPrice.product_variant_three  ? productVariantPrice.product_variant_three.id: '';
 
             let title1 = productVariantPrice.product_variant_one  ? productVariantPrice.product_variant_one.variant: '';
 
